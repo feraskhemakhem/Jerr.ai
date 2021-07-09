@@ -1,0 +1,29 @@
+{
+  "name": "jerr.ai",
+  "version": "1.0.0",
+  "description": "personal discord assistant",
+  "main": "bot.js",
+  "scripts": {
+    "test": "node bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feraskhemakhem/Jerr.ai.git"
+  },
+  "keywords": [
+    "discord-bot",
+    "bot",
+    "discordjs",
+    "oauth2"
+  ],
+  "author": "cherry_blossom",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/feraskhemakhem/Jerr.ai/issues"
+  },
+  "homepage": "https://github.com/feraskhemakhem/Jerr.ai#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0"
+  }
+}
