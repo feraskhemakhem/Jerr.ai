@@ -23,8 +23,9 @@ module.exports = {
     readData: readData,
     // function for writing given data to a file
     writeData: writeData,
-    // updates the setuproles message instance with channel and message id per guild
-    updateSetup: function(guild_id, channel_id, message_id) {
+    // add the setuproles message instance with channel and message id per guild
+    addSetup: function(guild_id, channel_id, message_id) {
+        console.log(`guild id ${guild_id}, channel is ${channel_id}, and message is ${message_id}`);
         const data = readData();
         data.setup_message[guild_id] = {channel_id, message_id};
         writeData(data);
@@ -32,7 +33,7 @@ module.exports = {
     // adds role and reaction pair for guild
     addReactionRole: function(guild_id, reaction, role_id) {
         const data = readData();
-        data.reactionRole[guild_id][role_id] = reaction; 
+        data.reaction_roles[guild_id][role_id] = reaction; 
         writeData(data);
     },
 };
