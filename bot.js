@@ -5,9 +5,11 @@ const client = new Discord.Client();
 const dotenv = require('dotenv');
 dotenv.config(); //https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
 const fetch = require('node-fetch');
+const fs = require('fs');
 
 client.debug = true;
 client.prefix = '!';
+client.commands = new Discord.Collection();
 
 const test_server_id = '625862970135805983';
 
@@ -26,6 +28,15 @@ client.once('ready', async () => {
     const app = await client.fetchApplication();
     client.my_maker = app.owner;
 
+    // add all commands in command folder to list of commands
+    const commandFiles = fs.readdirSync('./commands');
+
+    // add just /v for now
+    for (const file of commandFiles) {
+            const command = require(`./commands/${file}`);
+            client.commands.set(command.name, command);
+    }
+
     // queue that you're ready
     console.log(`les go`);
 });
@@ -38,20 +49,35 @@ client.on('message', async message => {
 
     // get args and command (command without prefix)
 	const args = message.content.slice(client.prefix.length).trim().split(/ +/);
-	const command = args.shift().toLowerCase();
+	const commandName = args.shift().toLowerCase();
 
-    console.log(`command ${command} received from index ${client.prefix.length}`);
+    console.log(`command ${commandName} received from index ${client.prefix.length}`);
 
     // parrot for telling you what to say
-    if (command === 'parrot') {
+    if (commandName === 'parrot') {
         const reply = message.content.substring(message.content.indexOf(' '));
         client.guilds.fetch(test_server_id)
             .then(guild => guild.systemChannel.send(reply));
     }
     // TEST CODE FOR REST API WITH RANDOM CAT EXAMPLE
-    else if (command === 'cat') {
+    else if (commandName === 'cat') {
         const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
         message.reply(file);
+    }
+    // else if (command === 'setup') { // based on https://www.youtube.com/watch?v=-KDQqWNK3Tw
+    //     const { version } = await fetch(`https://api.github.com`).then();
+    // }
+    else {
+        // if no command is registered, ignore
+        if (!client.commands.has(commandName)) return;
+        // otherwise, run the command
+        const command = client.commands.get(commandName);
+        try {
+            command.execute(message, args); // run command with args and database reference
+        } catch (error) { // if there's an error, print it as well as a message in the chat
+            console.error(error);
+            message.reply('there was an error trying to execute this command :/');
+        }
     }
 });
 
