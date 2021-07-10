@@ -56,11 +56,27 @@ module.exports = {
         elo_collector.on('collect', (reaction, user) => {
             console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
             // provide role to member in question
-            guild.members.fetch(user)
-            .then(member => {
+            const member = guild.members.resolve(user);
+            if (member.roles?.cache.get(role.id)) {// if role exists, remove
+                console.log(`removing role`);
+                member.roles.remove(role);
+            }
+            else {// else add
+                console.log(`adding role`);
                 member.roles.add(role);
-            }); 
+            }
+            // finally, remove reaction
+            // messagereaction -> reaction user manager -> remove()
+            reaction.users.remove(user);
         });
+
+        // finally, update messsage to incude emoji and role
+        if (setup_message.content.split(/\r\n|\r|\n/).length === 1) { // if only 1 line long, add to newlines
+            setup_message.edit(`${setup_message.content}\n\n${emoji}\t${role}`);
+        }
+        else { // if reactions already added, add 1 newline
+            setup_message.edit(`${setup_message.content}\n${emoji}\t${role}`);
+        }
 
     },
 };

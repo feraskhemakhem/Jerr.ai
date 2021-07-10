@@ -1,11 +1,12 @@
 // command for creating setup roles message and saving to db
 
 const { addSetup } = require("../db_helper");
+const setup_content = 'React with the following to gain role access:\n';
 
 module.exports = {
     name: 'setuproles',
-    minargs: 2,
-    usage: '<#channel> <message>',
+    args: 1,
+    usage: '<#channel>',
     description: 'provides message to assign roles to users',
     async execute(message, args) {
 
@@ -16,12 +17,6 @@ module.exports = {
             message.reply('no target channel provided');
             return;
         }
-
-        // remove channe from args
-        args.shift();
-
-        // combine all args into a string
-        const setup_content = args.join(' ');
 
         const setup_message = await target_channel.send(setup_content);
 
