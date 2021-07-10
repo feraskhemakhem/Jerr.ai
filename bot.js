@@ -70,8 +70,14 @@ client.on('message', async message => {
     else {
         // if no command is registered, ignore
         if (!client.commands.has(commandName)) return;
-        // otherwise, run the command
+
+        // otherwise, access the command
         const command = client.commands.get(commandName);
+
+        // check for valid arg # 
+        if (command.args && command.args !== args.length) return;
+        if (command.minargs && command.minargs > args.length) return;
+
         try {
             command.execute(message, args); // run command with args and database reference
         } catch (error) { // if there's an error, print it as well as a message in the chat
