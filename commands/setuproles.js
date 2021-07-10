@@ -1,3 +1,5 @@
+// command for creating setup roles message and saving to db
+
 const { addSetup } = require("../db_helper");
 
 module.exports = {

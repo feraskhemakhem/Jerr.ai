@@ -25,9 +25,10 @@ module.exports = {
     writeData: writeData,
     // add the setuproles message instance with channel and message id per guild
     addSetup: function(guild_id, channel_id, message_id) {
-        console.log(`guild id ${guild_id}, channel is ${channel_id}, and message is ${message_id}`);
         const data = readData();
         data.setup_message[guild_id] = {channel_id, message_id};
+        // clear/create field for guild in reaction_roles
+        data.reaction_roles[guild_id] = {};
         writeData(data);
     },
     // adds role and reaction pair for guild
@@ -35,5 +36,10 @@ module.exports = {
         const data = readData();
         data.reaction_roles[guild_id][role_id] = reaction; 
         writeData(data);
+    },
+    // gets the setup message of provided server
+    getSetupMessage: function(guild_id) {
+        const data = readData();
+        return data.setup_message[guild_id];
     },
 };
