@@ -20,9 +20,6 @@ module.exports = {
         console.log(`the emoji is ${args[1]}`);
         const emoji = args[1];
 
-        // add to db
-        addReactionRole(guild.id, emoji, role.id);
-
         // create reaction for message
         let setup_data;
         if (!(setup_data = getSetupMessage(guild.id))) { // if no setup message, let the user know
@@ -44,6 +41,9 @@ module.exports = {
             return;
         }
 
+        // if message exists, add to db
+        addReactionRole(guild.id, emoji, role.id);
+
         // react with this emoji to the message
         setup_message.react(emoji);
 
@@ -54,20 +54,27 @@ module.exports = {
         const elo_collector = setup_message.createReactionCollector(collector_filter);
         // collect role reactions
         elo_collector.on('collect', (reaction, user) => {
-            console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-            // provide role to member in question
-            const member = guild.members.resolve(user);
-            if (member.roles?.cache.get(role.id)) {// if role exists, remove
-                console.log(`removing role`);
-                member.roles.remove(role);
+            try {
+                console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+                // provide role to member in question
+                const member = guild.members.resolve(user);
+                if (!guild.me.hasPermission('MANAGE_ROLES')) {
+                    console.log(`no permission to add role`);
+                    return;
+                }
+                if (member.roles?.cache.get(role.id)) {// if role exists, remove
+                    console.log(`removing role`);
+                    member.roles.remove(role);
+                }
+                else {// else add
+                    console.log(`adding role`);
+                    member.roles.add(role).catch(error => console.log(error));
+                }
+                // finally, remove reaction
+                // messagereaction -> reaction user manager -> remove()
+                reaction.users.remove(user).catch(error => console.log(error));
             }
-            else {// else add
-                console.log(`adding role`);
-                member.roles.add(role);
-            }
-            // finally, remove reaction
-            // messagereaction -> reaction user manager -> remove()
-            reaction.users.remove(user);
+            catch (err) {console.log(err);}
         });
 
         // finally, update messsage to incude emoji and role
