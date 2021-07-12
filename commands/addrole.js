@@ -30,10 +30,14 @@ module.exports = {
         // use a destructable BABYYY
         const { channel_id, message_id } = setup_data;
 
-        console.log(`data is ${channel_id} and ${message_id}`);
+        console.log(`channel id is ${channel_id} and message id is ${message_id}`);
 
         // find the setup roles message from pinned messages of channel, and add message to cache
-        const setup_message = guild.channels?.resolve(channel_id).messages?.fetchPinned().get(message_id);
+        const pinned_messages  = await guild.channels?.resolve(channel_id).messages?.fetchPinned();
+        
+        console.log(`pinned messages are ${JSON.stringify(pinned_messages)}`);
+
+        const setup_message = pinned_messages.get(message_id);
 
         // if message not found, throw error
         if (!setup_message) {
