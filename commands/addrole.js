@@ -23,7 +23,7 @@ module.exports = {
         // create reaction for message
         let setup_data;
         if (!(setup_data = getSetupMessage(guild.id))) { // if no setup message, let the user know
-            message.reply('error in addrole: setup data not found');
+            message.reply('error in addrole : setup data not found');
             return;
         }
 
@@ -37,7 +37,7 @@ module.exports = {
 
         // if message not found, throw error
         if (!setup_message) {
-            message.reply('error in addrole: setup message not found');
+            message.reply('error in addrole : setup message not found');
             return;
         }
 
@@ -59,7 +59,7 @@ module.exports = {
                 // provide role to member in question
                 const member = guild.members.resolve(user);
                 if (!guild.me.hasPermission('MANAGE_ROLES')) {
-                    console.log(`no permission to add role`);
+                    console.log(`addrole : no permission to add role`);
                     return;
                 }
                 if (member.roles?.cache.get(role.id)) {// if role exists, remove
@@ -74,7 +74,7 @@ module.exports = {
                 // messagereaction -> reaction user manager -> remove()
                 reaction.users.remove(user).catch(error => console.log(error));
             }
-            catch (err) {console.log(err);}
+            catch (err) {console.log(`addrole : ${err}`);}
         });
 
         // finally, update messsage to incude emoji and role

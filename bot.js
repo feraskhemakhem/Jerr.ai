@@ -1,28 +1,46 @@
 /************************************ CONSTS ************************************/
 
-const Discord = require('discord.js');
-const client = new Discord.Client();
-const dotenv = require('dotenv');
+const Discord = require('discord.js');  // Discord instance
+const client = new Discord.Client();    // client instance (me!)
+const dotenv = require('dotenv');       // for keeping secrets
 dotenv.config(); //https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
-const fetch = require('node-fetch');
-const fs = require('fs');
+// const fetch = require('node-fetch');    // for oauth2
+const fs = require('fs');               // for accessing the file system
+const Sequelize = require('sequelize'); // for database access
 
+// for use in all files
 client.debug = true;
 client.prefix = '!';
 client.commands = new Discord.Collection();
 
+// test server reference for all guild-related things
 const test_server_id = '625862970135805983';
 
-/************************************ EVENT FUNCTIONS ************************************/
+// // create instance of sequelize
+// const sequelize = new Sequelize('database', 'user', 'password', {
+// 	host: 'localhost',  // db resides within the app (not dedicated)
+// 	dialect: 'sqlite',  // using sqlite
+// 	logging: false,     // verbose false
+// 	// SQLite only setting
+// 	storage: 'database.sqlite',
+// });
+
+/************************************ BENCHMARKS ************************************/
 
 // for v1.0.0
-// - Add roles based on reactions
-// - Use REST API to check github for updates on list of repos
+// - (DONE) Add roles based on reactions (v0.2.1 - v0.3.0)
+// - Use REST API to check github for updates on list of repos (v0.4.1 - v0.5.0)
+// - Add simple database for persistent data (v0.3.1 - v0.4.0)
+
+/************************************ EVENT FUNCTIONS ************************************/
 
 // ready event callback
 client.once('ready', async () => {
     // set bot status
-    client.user.setActivity(`ya like jazz?`, {type: 'PLAYING'});
+    if (client.debug) // makes it obvious if the bot is in debug mode or not when on
+        client.user.setActivity(`what's with debug mode, anyway?`, {type: 'PLAYING'});
+    else
+        client.user.setActivity(`ya like jazz?`, {type: 'PLAYING'});
 
     // wait for a reference to author's user to save
     const app = await client.fetchApplication();
@@ -51,7 +69,7 @@ client.on('message', async message => {
 	const args = message.content.slice(client.prefix.length).trim().split(/ +/);
 	const commandName = args.shift().toLowerCase();
 
-    console.log(`command ${commandName} received from index ${client.prefix.length}`);
+    console.log(`command ${commandName} received in bot.js`);
 
     // parrot for telling you what to say
     if (commandName === 'parrot') {
@@ -64,9 +82,6 @@ client.on('message', async message => {
         const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
         message.reply(file);
     }
-    // else if (command === 'setup') { // based on https://www.youtube.com/watch?v=-KDQqWNK3Tw
-    //     const { version } = await fetch(`https://api.github.com`).then();
-    // }
     else {
         // if no command is registered, ignore
         if (!client.commands.has(commandName)) return;
