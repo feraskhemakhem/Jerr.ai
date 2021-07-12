@@ -1,7 +1,7 @@
 // command for adding a role to setup roles message and saving to db
 
 const { TeamMember } = require("discord.js");
-const { addReactionRole, getSetupMessage } = require("../db_helper");
+const { addReactionRole, getSetupMessage } = require("../db_files/db_helper");
 
 module.exports = {
     name: 'addrole',
@@ -32,8 +32,8 @@ module.exports = {
 
         console.log(`data is ${channel_id} and ${message_id}`);
 
-        // find the setup roles message from the guild
-        const setup_message = guild.channels?.resolve(channel_id).messages?.resolve(message_id);
+        // find the setup roles message from pinned messages of channel, and add message to cache
+        const setup_message = guild.channels?.resolve(channel_id).messages?.fetchPinned().get(message_id);
 
         // if message not found, throw error
         if (!setup_message) {
