@@ -5,15 +5,16 @@ const client = new Discord.Client();    // client instance (me!)
 // https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
 require('dotenv').config();             // for keeping secrets
 const express = require('express');     // express for rest api stuff
-// const bodyParser = require('body-parser');// for parsing webhook inputs
+const bodyParser = require('body-parser');// for parsing webhook inputs
 const fs = require('fs');               // for accessing the file system
 const Sequelize = require('sequelize'); // for database access
 const { getUpdatesWebhook } = require('./helpers/database/db_helper');
+const { templateEmbed } = require('./helpers/webhooks/wb_helper');
 
 // initialize express and port
 const app = express();
 const PORT = 3000;
-// app.use(bodyParser.json()); // tell express to use body-parser's json parsing
+app.use(bodyParser.json()); // tell express to use body-parser's json parsing
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`)); // start express on defined port
 
 // for use in all files
@@ -124,17 +125,33 @@ client.on('webhookUpdate', channel => {
 
 /************************************ EXPRESS ENDPOINTS ************************************/
 
-// https://discord.com/api/webhooks/864462902455304253/DNJ_7FnkhCf5hmuN8LlPO7uM9tQTG3dCYlJUB4mc4urtef7XJfqvd60guf6YW6U9uvRE/github
+// https://blog.bearer.sh/consuming-webhooks-with-node-js-and-express/
 // this is DOPE ^^
 
 // for new endpoint "hook"
-app.post("/hook", (req, res) => {
-    console.log(req.headers); // Call your action on the request here
+app.post("/github", async (req, res) => {
+    // console.log(req.body.action); // Call your action on the request here
+    // console.log(req.body.repository.name); // Call your action on the request here
+    // console.log(req.body['release']); // Call your action on the request here
+
     res.status(200).end(); // ACKing quickly is important
 
     // if our event is a release
-    if (req.headers['x-github-event'] === 'release') {
-        const webhook = getUpdatesWebhook();
+    if (req.headers['x-github-event'] === 'release' && req.body.action === 'created') {
+        const webhook_id = getUpdatesWebhook();
+        console.log(`webhook id is ${webhook_id}`);
+        const webhook = await client.fetchWebhook(webhook_id);
+
+        // send webhook message regarding the provided data
+        const embed_message = await templateEmbed(client);
+        embed_message
+        .setTitle(`${req.body.release.name} Release`)
+        .setDescription(`${req.body.repository.name} released ${req.body.release.name} with details:\n${req.body.release.body}`);
+
+        webhook.send({
+            username: 'Jerr.ai',
+            embeds: [embed_message],
+        });
     }
 });
 

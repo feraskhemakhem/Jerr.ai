@@ -1,6 +1,6 @@
 // command for adding a role to setup roles message and saving to db
 
-const { getWebhook } = require("../../helpers/database/db_helper");
+const { getWebhook, getUpdatesWebhook } = require("../../helpers/database/db_helper");
 
 module.exports = {
     name: 'fetchwebhook',
@@ -10,6 +10,7 @@ module.exports = {
     async execute(message, args) {
         // get the id of the webhook from db then extract webhook from client
         const { client } = message;
+
         const webhook_id = getWebhook(message.guild.id);
 
         if (!webhook_id) {
