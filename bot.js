@@ -2,8 +2,8 @@
 
 const Discord = require('discord.js');  // Discord instance
 const client = new Discord.Client();    // client instance (me!)
-const dotenv = require('dotenv');       // for keeping secrets
-dotenv.config(); //https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
+// https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
+require('dotenv').config();             // for keeping secrets
 // const fetch = require('node-fetch');    // for oauth2
 const fs = require('fs');               // for accessing the file system
 const Sequelize = require('sequelize'); // for database access
@@ -12,6 +12,8 @@ const Sequelize = require('sequelize'); // for database access
 client.debug = true;
 client.prefix = '!';
 client.commands = new Discord.Collection();
+
+// client.webhookClient = new Discord.WebhookClient(config.webhookID, config.webhookToken);
 
 // test server reference for all guild-related things
 const test_server_id = '625862970135805983';
@@ -28,9 +30,9 @@ const test_server_id = '625862970135805983';
 /************************************ BENCHMARKS ************************************/
 
 // for v1.0.0
-// - (DONE) Add roles based on reactions (v0.2.1 - v0.3.0)
-// - Use REST API to check github for updates on list of repos (v0.4.1 - v0.5.0)
-// - Add simple database for persistent data (v0.3.1 - v0.4.0)
+// - (DONE) Add roles based on reactions (v0.2.1 - v0.3.3)
+// - Use REST API to check github for updates on list of repos (v0.4.1 - v0.5.0) // https://stackoverflow.com/questions/60675185/how-to-modify-channel-of-discord-webhook-with-python
+// - Add simple database for persistent data (v0.4.1 - v0.5.0) 
 
 /************************************ EVENT FUNCTIONS ************************************/
 
@@ -100,6 +102,11 @@ client.on('message', async message => {
             message.reply('there was an error trying to execute this command :/');
         }
     }
+});
+
+// when webhook is updated
+client.on('webhookUpdate', channel => {
+    console.log(`channel has a webhook update`);
 });
 
 

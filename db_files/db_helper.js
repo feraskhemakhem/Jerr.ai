@@ -42,4 +42,13 @@ module.exports = {
         const data = readData();
         return data.setup_message[guild_id];
     },
+    addWebhook: function(guild_id, webhook_id) {
+        const data = readData();
+        data.webhook[guild_id] = webhook_id;
+        writeData(data);
+    },
+    getWebhook: function(guild_id) {
+        const data = readData();
+        return data.webhook[guild_id];
+    }
 };
