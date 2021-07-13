@@ -1,6 +1,6 @@
 // command for adding a role to setup roles message and saving to db
 
-const { getWebhook } = require("../db_files/db_helper");
+const { getWebhook } = require("../../helpers/database/db_helper");
 
 module.exports = {
     name: 'fetchwebhook',
@@ -18,6 +18,6 @@ module.exports = {
         }
 
         const target_webhook = await client.fetchWebhook(webhook_id);
-        console.log(`target webhook is : ${JSON.stringify(target_webhook)}`);
+        console.log(`target webhook url is ${target_webhook.url} and other info is : ${JSON.stringify(target_webhook)}`);
     },
 };

@@ -1,5 +1,5 @@
 // all helper functions for the database (taken from MatchMaker bc it's the same :))
-const read_path = '../temp/temp_db.json';
+const read_path = '../../temp/temp_db.json';
 const write_path = './temp/temp_db.json';
 const fs = require('fs');
 
@@ -42,13 +42,19 @@ module.exports = {
         const data = readData();
         return data.setup_message[guild_id];
     },
-    addWebhook: function(guild_id, webhook_id) {
+    addWebhook: function(guild_id, webhook_id, updates) {
         const data = readData();
         data.webhook[guild_id] = webhook_id;
+        if (updates)
+            data.updatesWebhook = webhook_id;
         writeData(data);
     },
     getWebhook: function(guild_id) {
         const data = readData();
         return data.webhook[guild_id];
+    },
+    getUpdatesWebhook: function() {
+        const data = readData();
+        return data.updatesWebhook;
     }
 };

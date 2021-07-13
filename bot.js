@@ -4,16 +4,22 @@ const Discord = require('discord.js');  // Discord instance
 const client = new Discord.Client();    // client instance (me!)
 // https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
 require('dotenv').config();             // for keeping secrets
-// const fetch = require('node-fetch');    // for oauth2
+const express = require('express');     // express for rest api stuff
+// const bodyParser = require('body-parser');// for parsing webhook inputs
 const fs = require('fs');               // for accessing the file system
 const Sequelize = require('sequelize'); // for database access
+const { getUpdatesWebhook } = require('./helpers/database/db_helper');
+
+// initialize express and port
+const app = express();
+const PORT = 3000;
+// app.use(bodyParser.json()); // tell express to use body-parser's json parsing
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`)); // start express on defined port
 
 // for use in all files
 client.debug = true;
 client.prefix = '!';
 client.commands = new Discord.Collection();
-
-// client.webhookClient = new Discord.WebhookClient(config.webhookID, config.webhookToken);
 
 // test server reference for all guild-related things
 const test_server_id = '625862970135805983';
@@ -34,7 +40,7 @@ const test_server_id = '625862970135805983';
 // - Use REST API to check github for updates on list of repos (v0.4.1 - v0.5.0) // https://stackoverflow.com/questions/60675185/how-to-modify-channel-of-discord-webhook-with-python
 // - Add simple database for persistent data (v0.4.1 - v0.5.0) 
 
-/************************************ EVENT FUNCTIONS ************************************/
+/************************************ CLIENT EVENT FUNCTIONS ************************************/
 
 // ready event callback
 client.once('ready', async () => {
@@ -49,12 +55,19 @@ client.once('ready', async () => {
     client.my_maker = app.owner;
 
     // add all commands in command folder to list of commands
-    const commandFiles = fs.readdirSync('./commands');
+    // read all the sub-folders of commands
+    const commandFolders = fs.readdirSync('./commands');
 
-    // add just /v for now
-    for (const file of commandFiles) {
-            const command = require(`./commands/${file}`);
+    // for each subfolder, get all the files ending in js
+    for (const folder of commandFolders) {
+        if (folder.endsWith('js')) continue; // if a file and not a folder, skip
+        const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+        // for each file, add the command to client.commands
+        for (const file of commandFiles) {
+            const command = require(`./commands/${folder}/${file}`);
+            // key is command name, value is actual command
             client.commands.set(command.name, command);
+        }
     }
 
     // queue that you're ready
@@ -107,6 +120,22 @@ client.on('message', async message => {
 // when webhook is updated
 client.on('webhookUpdate', channel => {
     console.log(`channel has a webhook update`);
+});
+
+/************************************ EXPRESS ENDPOINTS ************************************/
+
+// https://discord.com/api/webhooks/864462902455304253/DNJ_7FnkhCf5hmuN8LlPO7uM9tQTG3dCYlJUB4mc4urtef7XJfqvd60guf6YW6U9uvRE/github
+// this is DOPE ^^
+
+// for new endpoint "hook"
+app.post("/hook", (req, res) => {
+    console.log(req.headers); // Call your action on the request here
+    res.status(200).end(); // ACKing quickly is important
+
+    // if our event is a release
+    if (req.headers['x-github-event'] === 'release') {
+        const webhook = getUpdatesWebhook();
+    }
 });
 
 
