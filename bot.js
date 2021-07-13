@@ -38,8 +38,8 @@ const test_server_id = '625862970135805983';
 
 // for v1.0.0
 // - (DONE) Add roles based on reactions (v0.2.1 - v0.3.3)
-// - Use REST API to check github for updates on list of repos (v0.4.1 - v0.5.0) // https://stackoverflow.com/questions/60675185/how-to-modify-channel-of-discord-webhook-with-python
-// - Add simple database for persistent data (v0.4.1 - v0.5.0) 
+// - (DONE) Use Express to check github for updates and intercept webhooks (v0.4.1 - v0.5.0) // https://stackoverflow.com/questions/60675185/how-to-modify-channel-of-discord-webhook-with-python
+// - Add simple database for persistent data (v0.5.1 - v0.6.0) 
 
 /************************************ CLIENT EVENT FUNCTIONS ************************************/
 
@@ -128,12 +128,8 @@ client.on('webhookUpdate', channel => {
 // https://blog.bearer.sh/consuming-webhooks-with-node-js-and-express/
 // this is DOPE ^^
 
-// for new endpoint "hook"
+// for new endpoint "github"
 app.post("/github", async (req, res) => {
-    // console.log(req.body.action); // Call your action on the request here
-    // console.log(req.body.repository.name); // Call your action on the request here
-    // console.log(req.body['release']); // Call your action on the request here
-
     res.status(200).end(); // ACKing quickly is important
 
     // if our event is a release
