@@ -3,15 +3,21 @@
 const { getWebhook } = require("../db_files/db_helper");
 
 module.exports = {
-    name: 'findwebhook',
+    name: 'fetchwebhook',
     args: 0,
     usage: '',
     description: 'finds webhook of guild',
     async execute(message, args) {
         // get the id of the webhook from db then extract webhook from client
-        const { client } = messsage;
+        const { client } = message;
         const webhook_id = getWebhook(message.guild.id);
-        const target_webhook = client.fetchWebhook(webhook_id);
+
+        if (!webhook_id) {
+            console.log(`error in fetchwebhook : webhook id is undefined`);
+            return;
+        }
+
+        const target_webhook = await client.fetchWebhook(webhook_id);
         console.log(`target webhook is : ${JSON.stringify(target_webhook)}`);
     },
 };
