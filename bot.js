@@ -1,15 +1,17 @@
 /************************************ CONSTS ************************************/
 
-const Discord = require('discord.js');  // Discord instance
-const client = new Discord.Client();    // client instance (me!)
+const Discord = require('discord.js');      // Discord instance
+const client = new Discord.Client();        // client instance (me!)
 // https://coderrocketfuel.com/article/how-to-load-environment-variables-from-a-.env-file-in-nodejs
-require('dotenv').config();             // for keeping secrets
-const express = require('express');     // express for rest api stuff
-const bodyParser = require('body-parser');// for parsing webhook inputs
-const fs = require('fs');               // for accessing the file system
-const Sequelize = require('sequelize'); // for database access
-const { getUpdatesWebhook } = require('./helpers/database/db_helper');
-const { templateEmbed } = require('./helpers/webhooks/wb_helper');
+require('dotenv').config();                 // for keeping secrets
+const express = require('express');         // express for rest api stuff
+const bodyParser = require('body-parser');  // for parsing webhook inputs
+const fs = require('fs');                   // for accessing the file system
+const sqlite = require('sqlite3').verbose();// for database access
+
+// helper function includes
+const { getUpdatesWebhook } = require('./helpers/db_helper');
+const { templateEmbed } = require('./helpers/wb_helper');
 
 // initialize express and port
 const app = express();
@@ -25,14 +27,14 @@ client.commands = new Discord.Collection();
 // test server reference for all guild-related things
 const test_server_id = '625862970135805983';
 
-// // create instance of sequelize
-// const sequelize = new Sequelize('database', 'user', 'password', {
-// 	host: 'localhost',  // db resides within the app (not dedicated)
-// 	dialect: 'sqlite',  // using sqlite
-// 	logging: false,     // verbose false
-// 	// SQLite only setting
-// 	storage: 'database.sqlite',
-// });
+// create instance of sequelize
+const sequelize = new Sequelize('database', 'user', 'password', {
+	host: 'localhost',  // db resides within the app (not dedicated)
+	dialect: 'sqlite',  // using sqlite
+	logging: false,     // verbose false
+	// SQLite only setting
+	storage: 'database.sqlite',
+});
 
 /************************************ BENCHMARKS ************************************/
 
@@ -43,85 +45,96 @@ const test_server_id = '625862970135805983';
 
 /************************************ CLIENT EVENT FUNCTIONS ************************************/
 
-// ready event callback
-client.once('ready', async () => {
-    // set bot status
-    if (client.debug) // makes it obvious if the bot is in debug mode or not when on
-        client.user.setActivity(`what's with debug mode, anyway?`, {type: 'PLAYING'});
-    else
-        client.user.setActivity(`ya like jazz?`, {type: 'PLAYING'});
 
-    // wait for a reference to author's user to save
-    const app = await client.fetchApplication();
-    client.my_maker = app.owner;
+// https://discordjs.guide/event-handling/#individual-event-files
+// get all event files
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-    // add all commands in command folder to list of commands
-    // read all the sub-folders of commands
-    const commandFolders = fs.readdirSync('./commands');
+// instantiate events from js files in events folder
+for (const file of eventFiles) {
+	const event = require(`./events/${file}`);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args, client));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args, client));
+	}
+}
 
-    // for each subfolder, get all the files ending in js
-    for (const folder of commandFolders) {
-        if (folder.endsWith('js')) continue; // if a file and not a folder, skip
-        const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-        // for each file, add the command to client.commands
-        for (const file of commandFiles) {
-            const command = require(`./commands/${folder}/${file}`);
-            // key is command name, value is actual command
-            client.commands.set(command.name, command);
-        }
-    }
+// // ready event callback
+// client.once('ready', async () => {
 
-    // queue that you're ready
-    console.log(`les go`);
-});
+//     // set bot status
+//     if (client.debug) // makes it obvious if the bot is in debug mode or not when on
+//         client.user.setActivity(`what's with debug mode, anyway?`, {type: 'PLAYING'});
+//     else
+//         client.user.setActivity(`ya like jazz?`, {type: 'PLAYING'});
 
-// message event callback
-client.on('message', async message => {
+//     // wait for a reference to author's user to save
+//     const app = await client.fetchApplication();
+//     client.my_maker = app.owner;
 
-    // ignore all messages unless it is from the creator himself with a prefix
-    if (!message.content.startsWith(client.prefix) || message.author.id !== client.my_maker.id) return;
+//     // add all commands in command folder to list of commands
+//     // read all the sub-folders of commands
+//     const commandFolders = fs.readdirSync('./commands');
 
-    // get args and command (command without prefix)
-	const args = message.content.slice(client.prefix.length).trim().split(/ +/);
-	const commandName = args.shift().toLowerCase();
+//     // for each subfolder, get all the files ending in js
+//     for (const folder of commandFolders) {
+//         if (folder.endsWith('js')) continue; // if a file and not a folder, skip
+//         const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+//         // for each file, add the command to client.commands
+//         for (const file of commandFiles) {
+//             const command = require(`./commands/${folder}/${file}`);
+//             // key is command name, value is actual command
+//             client.commands.set(command.name, command);
+//         }
+//     }
 
-    console.log(`command ${commandName} received in bot.js`);
+//     // queue that you're ready
+//     console.log(`les go`);
+// });
 
-    // parrot for telling you what to say
-    if (commandName === 'parrot') {
-        const reply = message.content.substring(message.content.indexOf(' '));
-        client.guilds.fetch(test_server_id)
-            .then(guild => guild.systemChannel.send(reply));
-    }
-    // TEST CODE FOR REST API WITH RANDOM CAT EXAMPLE
-    else if (commandName === 'cat') {
-        const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
-        message.reply(file);
-    }
-    else {
-        // if no command is registered, ignore
-        if (!client.commands.has(commandName)) return;
+// // message event callback
+// client.on('message', async message => {
 
-        // otherwise, access the command
-        const command = client.commands.get(commandName);
+//     // ignore all messages unless it is from the creator himself with a prefix
+//     if (!message.content.startsWith(client.prefix) || message.author.id !== client.my_maker.id) return;
 
-        // check for valid arg # 
-        if (command.args && command.args !== args.length) return;
-        if (command.minargs && command.minargs > args.length) return;
+//     // get args and command (command without prefix)
+// 	const args = message.content.slice(client.prefix.length).trim().split(/ +/);
+// 	const commandName = args.shift().toLowerCase();
 
-        try {
-            command.execute(message, args); // run command with args and database reference
-        } catch (error) { // if there's an error, print it as well as a message in the chat
-            console.error(error);
-            message.reply('there was an error trying to execute this command :/');
-        }
-    }
-});
+//     console.log(`command ${commandName} received in bot.js`);
 
-// when webhook is updated
-client.on('webhookUpdate', channel => {
-    console.log(`channel has a webhook update`);
-});
+//     // parrot for telling you what to say
+//     if (commandName === 'parrot') {
+//         const reply = message.content.substring(message.content.indexOf(' '));
+//         client.guilds.fetch(test_server_id)
+//             .then(guild => guild.systemChannel.send(reply));
+//     }
+//     // TEST CODE FOR REST API WITH RANDOM CAT EXAMPLE
+//     else if (commandName === 'cat') {
+//         const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
+//         message.reply(file);
+//     }
+//     else {
+//         // if no command is registered, ignore
+//         if (!client.commands.has(commandName)) return;
+
+//         // otherwise, access the command
+//         const command = client.commands.get(commandName);
+
+//         // check for valid arg # 
+//         if (command.args && command.args !== args.length) return;
+//         if (command.minargs && command.minargs > args.length) return;
+
+//         try {
+//             command.execute(message, args); // run command with args and database reference
+//         } catch (error) { // if there's an error, print it as well as a message in the chat
+//             console.error(error);
+//             message.reply('there was an error trying to execute this command :/');
+//         }
+//     }
+// });
 
 /************************************ EXPRESS ENDPOINTS ************************************/
 

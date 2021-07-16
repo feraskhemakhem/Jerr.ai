@@ -1,4 +1,4 @@
-const { getWebhook } = require("../database/db_helper");
+const { getWebhook } = require("./db_helper");
 const Discord = require('discord.js');
 
 module.exports = {

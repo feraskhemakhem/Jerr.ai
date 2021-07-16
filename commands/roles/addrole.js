@@ -1,7 +1,7 @@
 // command for adding a role to setup roles message and saving to db
 
 const { TeamMember } = require("discord.js");
-const { addReactionRole, getSetupMessage } = require("../../helpers/database/db_helper");
+const { addReactionRole, getSetupMessage } = require("../../helpers/db_helper");
 
 module.exports = {
     name: 'addrole',
