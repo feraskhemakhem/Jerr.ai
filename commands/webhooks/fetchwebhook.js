@@ -1,6 +1,6 @@
 // command for adding a role to setup roles message and saving to db
 
-const { getWebhook, getUpdatesWebhook } = require("../../helpers/db_helper");
+const { getWebhook, getUpdatesWebhook } = require("../../helper_functions/db_helper");
 
 module.exports = {
     name: 'fetchwebhook',

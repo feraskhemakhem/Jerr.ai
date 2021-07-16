@@ -7,34 +7,27 @@ require('dotenv').config();                 // for keeping secrets
 const express = require('express');         // express for rest api stuff
 const bodyParser = require('body-parser');  // for parsing webhook inputs
 const fs = require('fs');                   // for accessing the file system
-const sqlite = require('sqlite3').verbose();// for database access
+const sqlite = require('sqlite3').verbose();
 
 // helper function includes
-const { getUpdatesWebhook } = require('./helpers/db_helper');
-const { templateEmbed } = require('./helpers/wb_helper');
+const { getUpdatesWebhook } = require('./helper_functions/db_helper');
+const { templateEmbed } = require('./helper_functions/wb_helper');
+const { createDB, readWriteData } = require('./helper_functions/sqlite_helper');
 
 // initialize express and port
-const app = express();
+// const app = express();
 const PORT = 3000;
-app.use(bodyParser.json()); // tell express to use body-parser's json parsing
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`)); // start express on defined port
+// app.use(bodyParser.json()); // tell express to use body-parser's json parsing
+// app.listen(PORT, () => console.log(`🍒 Server running on port ${PORT}`)); // start express on defined port
 
 // for use in all files
 client.debug = true;
 client.prefix = '!';
 client.commands = new Discord.Collection();
+client.db_filename = 'testdb.db'; // ALLOWS FOR ALL DATA TO BE WRITTEN IN DIFFERENT FILES FOR TESTING ETC
 
 // test server reference for all guild-related things
 const test_server_id = '625862970135805983';
-
-// create instance of sequelize
-const sequelize = new Sequelize('database', 'user', 'password', {
-	host: 'localhost',  // db resides within the app (not dedicated)
-	dialect: 'sqlite',  // using sqlite
-	logging: false,     // verbose false
-	// SQLite only setting
-	storage: 'database.sqlite',
-});
 
 /************************************ BENCHMARKS ************************************/
 
@@ -48,17 +41,34 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 
 // https://discordjs.guide/event-handling/#individual-event-files
 // get all event files
-const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+// const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-// instantiate events from js files in events folder
-for (const file of eventFiles) {
-	const event = require(`./events/${file}`);
-	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args, client));
-	} else {
-		client.on(event.name, (...args) => event.execute(...args, client));
-	}
-}
+client.once('ready', async() => {
+    // create database instance or read/write
+    // const db = createDB();
+    console.log(`les make a db`);
+    const db = new sqlite.Database('./database/testdb.db', sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE);
+
+    // queue that you're ready
+    console.log(`les go`);
+});
+
+client.on('message', async message => {
+    // const db = readWriteData();
+    // db.run('CREATE TABLE IF NOT EXISTS data(userid INTEGER NOT NULL, username TEXT NOT NULL)');
+});
+
+
+
+// // instantiate events from js files in events folder
+// for (const file of eventFiles) {
+// 	const event = require(`./events/${file}`);
+// 	if (event.once) {
+// 		client.once(event.name, (...args) => event.execute(...args, client));
+// 	} else {
+// 		client.on(event.name, (...args) => event.execute(...args, client));
+// 	}
+// }
 
 // // ready event callback
 // client.once('ready', async () => {
@@ -142,27 +152,27 @@ for (const file of eventFiles) {
 // this is DOPE ^^
 
 // for new endpoint "github"
-app.post("/github", async (req, res) => {
-    res.status(200).end(); // ACKing quickly is important
+// app.post("/github", async (req, res) => {
+//     res.status(200).end(); // ACKing quickly is important
 
-    // if our event is a release
-    if (req.headers['x-github-event'] === 'release' && req.body.action === 'created') {
-        const webhook_id = getUpdatesWebhook();
-        console.log(`webhook id is ${webhook_id}`);
-        const webhook = await client.fetchWebhook(webhook_id);
+//     // if our event is a release
+//     if (req.headers['x-github-event'] === 'release' && req.body.action === 'created') {
+//         const webhook_id = getUpdatesWebhook();
+//         console.log(`webhook id is ${webhook_id}`);
+//         const webhook = await client.fetchWebhook(webhook_id);
 
-        // send webhook message regarding the provided data
-        const embed_message = await templateEmbed(client);
-        embed_message
-        .setTitle(`${req.body.release.name} Release`)
-        .setDescription(`${req.body.repository.name} released ${req.body.release.name} with details:\n${req.body.release.body}`);
+//         // send webhook message regarding the provided data
+//         const embed_message = await templateEmbed(client);
+//         embed_message
+//         .setTitle(`${req.body.release.name} Release`)
+//         .setDescription(`${req.body.repository.name} released ${req.body.release.name} with details:\n${req.body.release.body}`);
 
-        webhook.send({
-            username: 'Jerr.ai',
-            embeds: [embed_message],
-        });
-    }
-});
+//         webhook.send({
+//             username: 'Jerr.ai',
+//             embeds: [embed_message],
+//         });
+//     }
+// });
 
 
 

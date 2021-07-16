@@ -1,6 +1,6 @@
 // command for creating setup roles message and saving to db
 
-const { addSetup, getSetupMessage } = require("../../helpers/db_helper");
+const { addSetup, getSetupMessage } = require("../../helper_functions/db_helper");
 const setup_content = 'React with the following to gain role access:\n';
 
 module.exports = {

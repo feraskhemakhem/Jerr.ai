@@ -1,9 +1,13 @@
 // module for ready event of client
 
+const database_path = '../database/';
+
 //  node.js native file system
 const fs = require('fs');
 // discord api reference
 const Discord = require('discord.js'); 
+// for database access
+const sqlite = require('sqlite3').verbose();
 
 module.exports = {
 	name: 'ready',
@@ -15,9 +19,12 @@ module.exports = {
         else
             client.user.setActivity(`ya like jazz?`, {type: 'PLAYING'});
 
+
         // wait for a reference to author's user to save
         const app = await client.fetchApplication();
         client.my_maker = app.owner;
+
+        /*********************** ASSIGN COMMANDS ***********************/
 
         // add all commands in command folder to list of commands
         // read all the sub-folders of commands
@@ -34,6 +41,11 @@ module.exports = {
                 client.commands.set(command.name, command);
             }
         }
+
+        /*********************** DATABASE STUFF ***********************/
+
+        // create database instance or read/write
+        const db = new sqlite.Database(`${database_path}${client.db_filename}`, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE);
 
         // queue that you're ready
         console.log(`les go`);
