@@ -1,5 +1,5 @@
 // NEW HELPER TO HELP CONVERT TO SQLITE
-const read_path = `./database/testdb.db`;
+const read_path = `./testdb.db`;
 const fs = require('fs');
 
 const sqlite = require('sqlite3').verbose();
@@ -8,13 +8,19 @@ const accessDB = function(options) {
     return new sqlite.Database(read_path, options);
 }
 
-const readData = accessDB(sqlite.OPEN_READONLY);
+const readData = function() {
+    return accessDB(sqlite.OPEN_READONLY);
+}
 
-const readWriteData = accessDB(sqlite.OPEN_READWRITE);
+const readWriteData = function() {
+    return accessDB(sqlite.OPEN_READWRITE);
+}
 
 module.exports = {
     // creates the db initially
-    createDB: accessDB(sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE),
+    createDB: function() {
+        return accessDB(sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE)
+    },
     // returns the data of the file
     readData: readData,
     // function for writing given data to a file

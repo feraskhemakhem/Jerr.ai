@@ -106,3 +106,8 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+# database files
+*.db
+*.sqlite
+*.sqlite3
