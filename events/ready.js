@@ -1,13 +1,11 @@
 // module for ready event of client
 
-const database_path = '../database/';
-
 //  node.js native file system
 const fs = require('fs');
 // discord api reference
 const Discord = require('discord.js'); 
 // for database access
-const sqlite = require('sqlite3').verbose();
+const { createDB } = require('../helper_functions/sqlite_helper');
 
 module.exports = {
 	name: 'ready',
@@ -36,7 +34,7 @@ module.exports = {
             const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
             // for each file, add the command to client.commands
             for (const file of commandFiles) {
-                const command = require(`./commands/${folder}/${file}`);
+                const command = require(`../commands/${folder}/${file}`);
                 // key is command name, value is actual command
                 client.commands.set(command.name, command);
             }
@@ -45,7 +43,15 @@ module.exports = {
         /*********************** DATABASE STUFF ***********************/
 
         // create database instance or read/write
-        const db = new sqlite.Database(`${database_path}${client.db_filename}`, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE);
+        const db = await createDB();
+        // add all tables in case they don't exist
+        // reactionRoles table (guild_id, channel_id, message_id)
+        db.exec('CREATE TABLE IF NOT EXISTS reaction_roles(guild INTEGER NOT NULL, channel INTEGER NOT NULL, message INTEGER NOT NULL)');
+        // setupMessage table (guild_id unique, channel_id, message_id)
+        db.exec('CREATE TABLE IF NOT EXISTS setup_message(guild INTEGER NOT NULL UNIQUE, channel INTEGER NOT NULL, message INTEGER NOT NULL)');
+        // updatesWebHook table (webhook_id unique, guild_id)
+        db.exec('CREATE TABLE IF NOT EXISTS updates_webhook(webhook INTEGER NOT NULL UNIQUE, guild INTEGER NOT NULL)');
+        db.close();
 
         // queue that you're ready
         console.log(`les go`);

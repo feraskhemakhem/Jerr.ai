@@ -1,7 +1,6 @@
 // module for message event of client
 
-// temp fields (to server later)
-const db_helper = require('../helper_functions/db_helper.js');
+const sqlite_helper = require('../helper_functions/sqlite_helper');
 
 module.exports = {
 	name: 'message',

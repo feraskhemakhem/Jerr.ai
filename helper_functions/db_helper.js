@@ -1,5 +1,5 @@
 // all helper functions for the database (taken from MatchMaker bc it's the same :))
-const read_path = '../../temp/temp_db.json';
+const read_path = '../temp/temp_db.json';
 const write_path = './temp/temp_db.json';
 const fs = require('fs');
 

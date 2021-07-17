@@ -7,7 +7,6 @@ require('dotenv').config();                 // for keeping secrets
 const express = require('express');         // express for rest api stuff
 const bodyParser = require('body-parser');  // for parsing webhook inputs
 const fs = require('fs');                   // for accessing the file system
-const sqlite = require('sqlite3').verbose();
 
 // helper function includes
 const { getUpdatesWebhook } = require('./helper_functions/db_helper');
@@ -42,15 +41,15 @@ const test_server_id = '625862970135805983';
 // get all event files
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-// // instantiate events from js files in events folder
-// for (const file of eventFiles) {
-// 	const event = require(`./events/${file}`);
-// 	if (event.once) {
-// 		client.once(event.name, (...args) => event.execute(...args, client));
-// 	} else {
-// 		client.on(event.name, (...args) => event.execute(...args, client));
-// 	}
-// }
+// instantiate events from js files in events folder
+for (const file of eventFiles) {
+	const event = require(`./events/${file}`);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args, client));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args, client));
+	}
+}
 
 // // ready event callback
 // client.once('ready', async () => {
