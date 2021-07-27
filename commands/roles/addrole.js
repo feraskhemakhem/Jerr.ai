@@ -1,7 +1,7 @@
 // command for adding a role to setup roles message and saving to db
 
 const { TeamMember } = require("discord.js");
-const { addReactionRole, getSetupMessage } = require("../../helper_functions/db_helper");
+const { addReactionRole, getSetupMessage } = require("../../helper_functions/sqlite_helper");
 
 module.exports = {
     name: 'addrole',
@@ -9,6 +9,7 @@ module.exports = {
     usage: '<@role> <emoji>',
     description: 'add role and reaction to setup message',
     async execute(message, args) {
+        console.log(`addRole function called`);
         // guild is used a lot, so save that (and if not available, don't do anything)
         const { guild, client } = message;
         if (!guild.available) return;
@@ -17,25 +18,28 @@ module.exports = {
         const role = message.mentions.roles.first();
 
         // find the emoji in the message
-        console.log(`the emoji is ${args[1]}`);
+        console.log(`addrole: the emoji is ${args[1]}`);
         const emoji = args[1];
 
         // create reaction for message
         let setup_data;
-        if (!(setup_data = getSetupMessage(guild.id))) { // if no setup message, let the user know
+        if (!(setup_data = await getSetupMessage(guild.id))) { // if no setup message, let the user know
             message.reply('error in addrole : setup data not found');
             return;
         }
 
         // use a destructable BABYYY
-        const { channel_id, message_id } = setup_data;
+        let { channel_id, message_id } = setup_data;
 
-        console.log(`channel id is ${channel_id} and message id is ${message_id}`);
+        // channel_id = parseInt(channel_id);
+        // message_id = parseInt(message_id);
+
+        console.log(`addrole: channel id is ${channel_id} and message id is ${message_id}`);
 
         // find the setup roles message from pinned messages of channel, and add message to cache
-        const pinned_messages  = await guild.channels?.resolve(channel_id).messages?.fetchPinned();
+        const pinned_messages = await guild.channels?.resolve(channel_id).messages?.fetchPinned();
         
-        console.log(`pinned messages are ${JSON.stringify(pinned_messages)}`);
+        // console.log(`pinned messages are ${JSON.stringify(pinned_messages)}`);
 
         const setup_message = pinned_messages.get(message_id);
 
@@ -45,8 +49,12 @@ module.exports = {
             return;
         }
 
+        console.log(`addRole: about to add reaction role!`);
+
         // if message exists, add to db
-        addReactionRole(guild.id, emoji, role.id);
+        await addReactionRole(guild.id, emoji, role.id);
+
+        console.log(`addRole: reaction role successful!`);
 
         // react with this emoji to the message
         setup_message.react(emoji);

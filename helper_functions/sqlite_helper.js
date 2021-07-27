@@ -7,7 +7,6 @@ const { open } = require('sqlite');
 
 
 const accessDB = async function(options) {
-    console.log(`options are ${options}`);
     return await open({
         filename: read_path,
         driver: sqlite3.Database,
@@ -27,7 +26,7 @@ module.exports = {
     // creates the db initially
     createDB: async function() {
         console.log(`amogus`);
-        return await accessDB(sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE)
+        return await accessDB(sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
     },
     // returns the data of the file
     readData: readData,
@@ -36,36 +35,41 @@ module.exports = {
     // add the setuproles message instance with channel and message id per guild
     addSetup: async function(guild_id, channel_id, message_id) {
         const db = await readWriteData();
+        console.log(`addSetup: values in addsetup are ${guild_id}, ${channel_id}, and ${message_id}`);
         // add guild, channel, and message id
-        db.exec('INSERT OR REPLACE INTO setup_message VALUES(?, ?, ?)', [guild_id, channel_id, message_id], function(err) {
+        db.run('INSERT OR REPLACE INTO setup_message VALUES(?, ?, ?)', [guild_id, channel_id, message_id], function(err) {
             if (err) {
               return console.error(err.message);
             }
             console.log(`Row(s) inserted or replaced from setup_message ${this.changes}`);
         });
         // clear all reaction_roles for provided guild
-        db.exec('DELETE FROM reaction_roles WHERE guild=?', guild_id, function(err) {
-            if (err) {
-              return console.error(err.message);
-            }
-            console.log(`Row(s) deleted from setup_message ${this.changes}`);
-        });
+        // db.run('DELETE FROM reaction_roles WHERE guild=?', guild_id, function(err) {
+        //     if (err) {
+        //       return console.error(err.message);
+        //     }
+        //     console.log(`Row(s) deleted from setup_message ${this.changes}`);
+        // });
           
         db.close();
     },
-    // // adds role and reaction pair for guild
-    // addReactionRole: function(guild_id, reaction, role_id) {
-    //     const data = readData();
-    //     data.reaction_roles[guild_id][role_id] = reaction; 
-    //     writeData(data);
-    // },
+    // adds role and reaction pair for guild
+    addReactionRole: async function(guild_id, reaction, role_id) {
+        console.log(`addReactionRole: inserting data: ${guild_id}, ${reaction}, ${role_id}`);
+        const db = await readWriteData();
+        // write reaction_role to reaction_roles in database
+        db.run('INSERT INTO reaction_roles VALUES(?, ?, ?)', [guild_id, reaction, role_id]);
+        db.close();
+    },
     // gets the setup message of provided server
     getSetupMessage: async function(guild_id) {
         const db = await readData();
         // based on https://www.sqlitetutorial.net/sqlite-nodejs/query/
         // get channel and message id and return
         const value = await db.get('SELECT DISTINCT channel as channel_id, message as message_id FROM setup_message WHERE guild = ?', guild_id);
-        console.log(`selected {${value.channel_id}, ${value.message_id}} from setup_message`);
+        // if message exists, print em something
+        if (value) console.log(`selected {${value.channel_id}, ${value.message_id}} from setup_message`);
+        db.close();
         return value;
     },
     // addWebhook: function(guild_id, webhook_id, updates) {

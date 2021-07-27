@@ -45,15 +45,16 @@ module.exports = {
         // create database instance or read/write
         const db = await createDB();
         // add all tables in case they don't exist
-        // reactionRoles table (guild_id, channel_id, message_id)
-        db.exec('CREATE TABLE IF NOT EXISTS reaction_roles(guild INTEGER NOT NULL, channel INTEGER NOT NULL, message INTEGER NOT NULL)');
+        // using text because ints cant hold the ids :(
+        // reactionRoles table (guild_id, role_id, reaction)
+        db.exec('CREATE TABLE IF NOT EXISTS reaction_roles(guild TEXT NOT NULL, reaction BLOB NOT NULL, role TEXT NOT NULL)');
         // setupMessage table (guild_id unique, channel_id, message_id)
-        db.exec('CREATE TABLE IF NOT EXISTS setup_message(guild INTEGER NOT NULL UNIQUE, channel INTEGER NOT NULL, message INTEGER NOT NULL)');
+        db.exec('CREATE TABLE IF NOT EXISTS setup_message(guild TEXT NOT NULL UNIQUE, channel TEXT NOT NULL, message TEXT NOT NULL)');
         // updatesWebHook table (webhook_id unique, guild_id)
-        db.exec('CREATE TABLE IF NOT EXISTS updates_webhook(webhook INTEGER NOT NULL UNIQUE, guild INTEGER NOT NULL)');
+        db.exec('CREATE TABLE IF NOT EXISTS updates_webhook(webhook TEXT NOT NULL UNIQUE, guild TEXT NOT NULL)');
         db.close();
 
         // queue that you're ready
-        console.log(`les go`);
+        console.log(`les go\n\n\n`);
     },
 };

@@ -12,8 +12,6 @@ module.exports = {
         const args = message.content.slice(client.prefix.length).trim().split(/ +/);
         const commandName = args.shift().toLowerCase();
 
-        console.log(`command ${commandName} received in bot.js`);
-
         // parrot for telling you what to say
         if (commandName === 'parrot') {
             const reply = message.content.substring(message.content.indexOf(' '));
