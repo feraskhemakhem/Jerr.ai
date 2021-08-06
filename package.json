@@ -1,6 +1,6 @@
 {
   "name": "jerr.ai",
-  "version": "1.0.0",
+  "version": "0.6.2",
   "description": "personal discord assistant",
   "main": "bot.js",
   "scripts": {

@@ -31,9 +31,6 @@ module.exports = {
         // use a destructable BABYYY
         let { channel_id, message_id } = setup_data;
 
-        // channel_id = parseInt(channel_id);
-        // message_id = parseInt(message_id);
-
         console.log(`addrole: channel id is ${channel_id} and message id is ${message_id}`);
 
         // find the setup roles message from pinned messages of channel, and add message to cache

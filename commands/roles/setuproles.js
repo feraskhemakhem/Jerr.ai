@@ -21,11 +21,6 @@ module.exports = {
             message.reply('error in setuproles : no target channel provided');
             return;
         }
-
-        // const setup_data = await getSetupMessage(guild.id);
-
-        // console.log(`setup_data is ${JSON.stringify(setup_data)}`);
-
         
         // if old setup message exists, delete it before sending new one
         let setup_data;
