@@ -1,9 +1,9 @@
-const { getWebhook } = require("./db_helper");
+const { getGuildUpdateWebhook } = require("./sqlite_helper");
 const Discord = require('discord.js');
 
 module.exports = {
     fetchWebhookHelper: async function(guild_id) {
-        const webhook_id = getWebhook(guild_id);
+        const webhook_id = getGuildUpdateWebhook(guild_id);
 
         if (!webhook_id) {
             console.log(`error in fetchWebhookHelper : webhook id is undefined`);

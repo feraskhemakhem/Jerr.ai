@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');  // for parsing webhook inputs
 const fs = require('fs');                   // for accessing the file system
 
 // helper function includes
-const { getUpdatesWebhook } = require('./helper_functions/db_helper');
+const { getUpdatesWebhook } = require('./helper_functions/sqlite_helper');
 const { templateEmbed } = require('./helper_functions/wb_helper');
 
 // initialize express and port
@@ -62,20 +62,23 @@ app.post("/github", async (req, res) => {
 
     // if our event is a release
     if (req.headers['x-github-event'] === 'release' && req.body.action === 'created') {
-        const webhook_id = getUpdatesWebhook();
-        console.log(`webhook id is ${webhook_id}`);
-        const webhook = await client.fetchWebhook(webhook_id);
+        const webhooks_info = getUpdatesWebhooks();
+        // for each update webhook, send info
+        for (webhooks_info of webhooks) {
+            console.log(`webhook id is ${webhook_id}`);
+            const webhook = await client.fetchWebhook(webhook_id);
 
-        // send webhook message regarding the provided data
-        const embed_message = await templateEmbed(client);
-        embed_message
-        .setTitle(`${req.body.release.name} Release`)
-        .setDescription(`${req.body.repository.name} released ${req.body.release.name} with details:\n${req.body.release.body}`);
+            // send webhook message regarding the provided data
+            const embed_message = await templateEmbed(client);
+            embed_message
+            .setTitle(`${req.body.release.name} Release`)
+            .setDescription(`${req.body.repository.name} released ${req.body.release.name} with details:\n${req.body.release.body}`);
 
-        webhook.send({
-            username: 'Jerr.ai',
-            embeds: [embed_message],
-        });
+            webhook.send({
+                username: 'Jerr.ai',
+                embeds: [embed_message],
+            });
+        }
     }
 });
 

@@ -1,6 +1,6 @@
 // command for adding a role to setup roles message and saving to db
 
-const { getGuildUpdateWebhook, getUpdatesWebhooks } = require("../../helper_functions/sqlite_helper");
+const { getGuildUpdateWebhook } = require("../../helper_functions/sqlite_helper");
 
 module.exports = {
     name: 'fetchwebhook',

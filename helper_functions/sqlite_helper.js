@@ -81,7 +81,7 @@ module.exports = {
         const db = await readData();
         // get all webhooks
         const values = await db.all('SELECT DISTINCT webhook as webhook_id, guild as guild_id FROM updates_webhook ORDER BY guild');
-        if (value) console.log(`list of update webhooks is ${JSON.stringify(value)}`);
+        if (values) console.log(`list of update webhooks is ${JSON.stringify(values)}`);
         db.close();
         return values;
     },
