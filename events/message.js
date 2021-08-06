@@ -15,7 +15,7 @@ module.exports = {
         // parrot for telling you what to say
         if (commandName === 'parrot') {
             const reply = message.content.substring(message.content.indexOf(' '));
-            client.guilds.fetch(test_server_id)
+            client.guilds.fetch(client.test_server_id)
                 .then(guild => guild.systemChannel.send(reply));
         }
         // TEST CODE FOR REST API WITH RANDOM CAT EXAMPLE
