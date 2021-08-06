@@ -33,6 +33,8 @@ client.test_server_id = '625862970135805983';
 // - (DONE) Add roles based on reactions (v0.2.1 - v0.3.3)
 // - (DONE) Use Express to check github for updates and intercept webhooks (v0.4.1 - v0.5.0) // https://stackoverflow.com/questions/60675185/how-to-modify-channel-of-discord-webhook-with-python
 // - (DONE) Add simple database for persistent data (v0.5.1 - v0.6.0)
+// - (DONE) Fix bugs and complete webhook stuff (v0.6.1 - v0.8.0)
+// - Implement Heroku Postgres for SQLite (v0.8.1 - v0.9.0)
 
 /************************************ CLIENT EVENT FUNCTIONS ************************************/
 

@@ -1,6 +1,6 @@
 {
   "name": "jerr.ai",
-  "version": "1.0.0",
+  "version": "0.8.1",
   "description": "personal discord assistant",
   "main": "bot.js",
   "scripts": {
@@ -29,6 +29,7 @@
     "express": "^4.17.1",
     "keyv": "^4.0.3",
     "node-fetch": "^2.6.1",
+    "pg": "^8.7.1",
     "sequelize": "^6.6.5",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2"
