@@ -18,9 +18,9 @@ module.exports = {
             return;
         }
 
-        message.channel.send(`fetchwebhook: webhook is ${webhook_info.webhook_id} from channel ${webhook_info.channel_id}`);
+        console.log(`fetchwebhook: webhook is ${webhook_info.webhook_id} from channel ${webhook_info.channel_id}`);
 
-        const target_webhook = await client.fetchWebhook(webhook_id);
-        console.log(`fetchwebhook: target webhook url is ${target_webhook.url}\nand other info is:\n${JSON.stringify(target_webhook)}`);
+        const target_webhook = await client.fetchWebhook(webhook_info.webhook_id);
+        message.channel.send(`fetchwebhook: target webhook url is ${target_webhook.url}\nand other info is:\n${JSON.stringify(target_webhook)}`);
     },
 };
