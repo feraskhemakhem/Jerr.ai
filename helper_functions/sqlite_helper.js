@@ -72,19 +72,26 @@ module.exports = {
         db.close();
         return value;
     },
-    // addWebhook: function(guild_id, webhook_id, updates) {
-    //     const data = readData();
-    //     data.webhook[guild_id] = webhook_id;
-    //     if (updates)
-    //         data.updatesWebhook = webhook_id;
-    //     writeData(data);
-    // },
-    // getWebhook: function(guild_id) {
-    //     const data = readData();
-    //     return data.webhook[guild_id];
-    // },
-    // getUpdatesWebhook: function() {
-    //     const data = readData();
-    //     return data.updatesWebhook;
-    // }
+    addUpdateWebhook: async function(guild_id, channel_id, webhook_id) {
+        const db = await readWriteData();
+        db.run('INSERT INTO updates_webhook VALUES(?, ?, ?)', webhook_id, channel_id, guild_id);
+        db.close();
+    },
+    getUpdateWebooks: async function() { 
+        const db = await readData();
+        // get all webhooks
+        const values = await db.all('SELECT DISTINCT webhook as webhook_id, guild as guild_id FROM updates_webhook ORDER BY guild');
+        if (value) console.log(`list of update webhooks is ${JSON.stringify(value)}`);
+        db.close();
+        return values;
+    },
+    getGuildUpdateWebhook: async function(guild_id) {
+        const db = await readData();
+        // get first webhook that has guild id
+        const value = await db.get('SELECT DISTINCT webhook as webhook_id, channel as channel_id FROM updates_webhook WHERE guild = ?', guild_id);
+        // if value exists, print it accordingly
+        if (value) console.log(`update webhook for guild ${guild_id} is ${value.webhook_id} from channel ${value.channel_id}`);
+        db.close();
+        return value;
+    },
 };

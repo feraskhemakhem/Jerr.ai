@@ -51,7 +51,7 @@ module.exports = {
         // setupMessage table (guild_id unique, channel_id, message_id)
         db.exec('CREATE TABLE IF NOT EXISTS setup_message(guild TEXT NOT NULL UNIQUE, channel TEXT NOT NULL, message TEXT NOT NULL)');
         // updatesWebHook table (webhook_id unique, guild_id)
-        db.exec('CREATE TABLE IF NOT EXISTS updates_webhook(webhook TEXT NOT NULL UNIQUE, guild TEXT NOT NULL)');
+        db.exec('CREATE TABLE IF NOT EXISTS updates_webhook(webhook TEXT NOT NULL UNIQUE, channel TEXT NOT NULL, guild TEXT NOT NULL UNIQUE)');
         db.close();
 
         // queue that you're ready

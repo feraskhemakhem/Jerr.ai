@@ -1,6 +1,6 @@
 // command for adding a role to setup roles message and saving to db
 
-const { getWebhook, getUpdatesWebhook } = require("../../helper_functions/db_helper");
+const { getGuildUpdateWebhook, getUpdatesWebhooks } = require("../../helper_functions/sqlite_helper");
 
 module.exports = {
     name: 'fetchwebhook',
@@ -11,14 +11,16 @@ module.exports = {
         // get the id of the webhook from db then extract webhook from client
         const { client } = message;
 
-        const webhook_id = getWebhook(message.guild.id);
+        const webhook_info = await getGuildUpdateWebhook(message.guild.id);
 
-        if (!webhook_id) {
+        if (!webhook_info) {
             console.log(`error in fetchwebhook : webhook id is undefined`);
             return;
         }
 
+        message.channel.send(`fetchwebhook: webhook is ${webhook_info.webhook_id} from channel ${webhook_info.channel_id}`);
+
         const target_webhook = await client.fetchWebhook(webhook_id);
-        console.log(`target webhook url is ${target_webhook.url} and other info is : ${JSON.stringify(target_webhook)}`);
+        console.log(`fetchwebhook: target webhook url is ${target_webhook.url}\nand other info is:\n${JSON.stringify(target_webhook)}`);
     },
 };
