@@ -18,11 +18,6 @@ module.exports = {
             client.guilds.fetch(client.test_server_id)
                 .then(guild => guild.systemChannel.send(reply));
         }
-        // TEST CODE FOR REST API WITH RANDOM CAT EXAMPLE
-        else if (commandName === 'cat') {
-            const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
-            message.reply(file);
-        }
         else {
             // if no command is registered, ignore
             if (!client.commands.has(commandName)) return;
